@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import norm
-#api_key = "1B1AV8OI48Q0KOGJ"
+
 
 class Options:
 
