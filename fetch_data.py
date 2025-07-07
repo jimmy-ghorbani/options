@@ -7,10 +7,34 @@ from datetime import datetime,timedelta
 
 api_key = "1B1AV8OI48Q0KOGJ"
 today = datetime.today()
-start = today - timedelta(1000)
+start = today - timedelta(1800)
 end = today - timedelta(1)
+expiration_date = today + timedelta(7)
+def fetch_option_chain(api, ticker, date):
+    url = (
+        "https://www.alphavantage.co/query?"
+        "function=HISTORICAL_OPTIONS"
+        f"&symbol={ticker}"
+        f"&date={date}"
+        f"&apikey={api}"
+    )
+    resp = requests.get(url)
+    
+    try:
+        data = resp.json()
+        if "data" not in data:
+            raise ValueError(f"API response does not contain 'data'. Response: {data}")
+        
+        records = data['data']
+        df = pd.json_normalize(records)
 
-def fetch_option_chain():
+        return df
+
+    except Exception as e:
+        print("Error fetching or parsing data:", e)
+        return pd.DataFrame()
+'''
+def fetch_option_chain(api_key, ticker):
     url = (
     "https://www.alphavantage.co/query?"
     "function=HISTORICAL_OPTIONS"
@@ -25,11 +49,12 @@ def fetch_option_chain():
     # Concatenate it back with the rest of df (optional)
     result = pd.concat([df.drop(columns=['data']), normalized_data], axis=1)
     return result
-
+'''
 
 def fetch_stock_data(ticker,start,end):
     historical_prices = yf.download(ticker,start, end)
     historical_prices['logreturn'] = np.log(historical_prices['Close'] / historical_prices['Close'].shift(1))
+    historical_prices = historical_prices.dropna()
     return historical_prices
 
 def volatilityCone(ticker,start,end):
@@ -80,5 +105,7 @@ def plotVC(ticker,start,end):
 
 
 ticker ='AAPL'
-print(volatilityCone(ticker,start,end))
-plotVC(ticker,start,end)
+#print(volatilityCone(ticker,start,end))
+#plotVC(ticker,start,end)
+optionchain = fetch_option_chain(api_key,ticker,start)
+print(optionchain)

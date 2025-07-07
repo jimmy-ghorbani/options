@@ -64,3 +64,5 @@ class Greeks(Options):
         term2 = self.r * self.K * np.exp(-self.r * self.T) * norm.cdf(-d2)
         return term1 + term2
 
+
+
