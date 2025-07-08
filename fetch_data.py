@@ -101,15 +101,27 @@ optionchain['averageIV'] = (optionchain['impliedVolatility_call'] + optionchain[
 
 
 # Step 1: Get the 25th percentile for the selected window
-threshold = VC[VC["window"] == num_days]["25th_percentile"].values[0]
+threshold = VC[VC["window"] == num_days]["75th_percentile"].values[0]
 # Step 2: produce signal
 trade_signal = optionchain[optionchain['averageIV'] < threshold]
 print(VC)
 print(trade_signal)
 
 
+LONG1 = None
+LONG2 = None
 
+if not trade_signal.empty:
+    # Select the row with the lowest averageIV
+    best_row = trade_signal.loc[trade_signal['averageIV'].idxmin()]
 
+    LONG1 = best_row['contractSymbol_call']
+    LONG2 = best_row['contractSymbol_put']
 
-
-
+    print("\nBest signal found (lowest averageIV):")
+    print(f"LONG1: {LONG1}")
+    print(f"LONG2: {LONG2}")
+    print(f"averageIV: {best_row['averageIV']:.6f}")
+    print("------")
+else:
+    print("\nWith the provided conditions, no signals found.")
